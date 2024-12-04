@@ -1,10 +1,10 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useContext, useState } from "react";
+import SocketContext from "../context/SocketContex";
 
-interface Props {
-  addBand: (name: string) => void;
-}
 
-export const BandAdd = ({ addBand }: Props) => {
+export const BandAdd = () => {
+  const { socket } = useContext(SocketContext);
+
   const [inputValue, setInputValue] = useState("");
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -14,7 +14,7 @@ export const BandAdd = ({ addBand }: Props) => {
 
   const onsubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    addBand(inputValue);
+    socket.emit("add-band", { name: inputValue });
     setInputValue("");
   };
 

@@ -1,26 +1,12 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { Band } from "../interfaces";
+import SocketContext from "../context/SocketContex";
 
-interface Props {
-  data: Band[];
-  voteBand: (id: string) => void;
-  deleteBand: (id: string) => void;
-  changeName: (id: string, newName: string) => void;
-}
-
-export const BandList = ({ data, voteBand, deleteBand,changeName }: Props) => {
-  const [bands, setBands] = useState(data);
-
-  
+export const BandList = () => {
+  const { socket } = useContext(SocketContext);
+  const [bands, setBands] = useState<Band[]>([]);
 
   const handleOnchange = (e: ChangeEvent<HTMLInputElement>, id: string) => {
-    data = data.map((band) => {
-      if (band.id === id) {
-        band.name = e.target.value;
-      }
-      return band;
-    });
-
     setBands((value) => {
       const newBand = value.map((band) => {
         if (band.id === id) {
@@ -33,13 +19,28 @@ export const BandList = ({ data, voteBand, deleteBand,changeName }: Props) => {
     });
   };
 
-  const onLostFocus = (id: string, nombre: string) => {
-    changeName(id, nombre);
+  const voteBand = (id: string) => {
+    socket.emit("vote-band", id);
   };
-  
+
+  const deleteBand = (id: string) => {
+    socket.emit("delete-band", id);
+  };
+
+  const onLostFocus = (id: string, newName: string) => {
+    if (newName.trim() === "") return;
+    socket.emit("change-name", { id, newName: newName.trim() });
+  };
+
   useEffect(() => {
-    setBands(data);
-  }, [data]);
+    socket.on("current-bands", (bands) => {
+      setBands(bands);
+    });
+
+    return () => {
+      socket.off("current-bands");
+    };
+  }, [socket]);
 
   const createRows = () => {
     return (
@@ -81,7 +82,6 @@ export const BandList = ({ data, voteBand, deleteBand,changeName }: Props) => {
         <thead>
           <tr>
             <th scope="col">#</th>
-
             <th scope="col">Name</th>
             <th scope="col">Vote</th>
             <th scope="col">Delete</th>
