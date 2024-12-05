@@ -1,17 +1,24 @@
 import {
+  // DesktopOutlined,
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme } from "antd";
+import { Layout, Menu, theme } from "antd";
+import { useContext } from "react";
+import { Outlet, useNavigate } from "react-router";
+import UiContext from "../context/UIContext";
 const { Sider, Content } = Layout;
-export const RouterPage = () => {
+export const MainLayout = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const navigate = useNavigate();
+  const {hiddenMenu} =useContext(UiContext)
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider>
+      <Sider hidden={hiddenMenu} collapsedWidth="0" breakpoint="xs">
         <div className="demo-logo-vertical" />
         <Menu
           theme="dark"
@@ -21,18 +28,35 @@ export const RouterPage = () => {
             {
               key: "1",
               icon: <UserOutlined />,
-              label: "nav 1",
+              label: "SignIn",
+              onClick: () => {
+                navigate("/");
+              },
             },
             {
               key: "2",
               icon: <VideoCameraOutlined />,
-              label: "nav 2",
+              label: "Line",
+              onClick: () => {
+                navigate("/line");
+              },
             },
             {
               key: "3",
               icon: <UploadOutlined />,
-              label: "nav 3",
+              label: "Create TIcket",
+              onClick: () => {
+                navigate("/create");
+              },
             },
+            // {
+            //   key: "4",
+            //   icon: <DesktopOutlined />,
+            //   label: "Desktop",
+            //   onClick: () => {
+            //     navigate("/desktop");
+            //   },
+            // },
           ]}
         />
       </Sider>
@@ -46,7 +70,7 @@ export const RouterPage = () => {
             borderRadius: borderRadiusLG,
           }}
         >
-          Content
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

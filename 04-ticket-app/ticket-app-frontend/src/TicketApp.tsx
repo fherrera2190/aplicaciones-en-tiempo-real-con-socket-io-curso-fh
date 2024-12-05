@@ -1,9 +1,12 @@
-import { RouterPage } from "./pages/RouterPage";
+import { UiProvider } from "./context/UiProvider";
+import { RouterApp } from "./routes/RouterApp";
 
 export const TicketApp = () => {
   return (
     <>
-      <RouterPage />
+      <UiProvider>
+        <RouterApp />
+      </UiProvider>
     </>
   );
 };
