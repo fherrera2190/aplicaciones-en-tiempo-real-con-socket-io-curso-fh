@@ -1,29 +1,33 @@
 import { CloseCircleOutlined, RightOutlined } from "@ant-design/icons";
 import { Button, Col, Divider, Row, Typography } from "antd";
 import { useHideMenu } from "../hooks/useHideMenu";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { getUserStorage } from "../helpers/getUserStorage";
 import { useNavigate } from "react-router";
+import SocketContext from "../context/SocketContex";
+import { Ticket } from "../interfaces";
 
 const { Title, Text } = Typography;
 
 export const Desktop = () => {
   const [user] = useState(getUserStorage());
+  const [ticket, setTicket] = useState<Ticket>();
   const navigate = useNavigate();
+  const { socket } = useContext(SocketContext);
 
   useHideMenu(false);
 
   const quit = () => {
-    console.log("salir");
     localStorage.clear();
     navigate("/");
   };
   const nextTicket = () => {
-    console.log("nextTicket");
+    socket.emit("next-ticket", user, (data: Ticket) => {
+      setTicket(data);
+    });
   };
 
-
-  if(!user.agent || !user.desktop){
+  if (!user.agent || !user.desktop) {
     navigate("/");
   }
 
@@ -50,19 +54,21 @@ export const Desktop = () => {
         </Col>
       </Row>
       <Divider />
-      <Row>
-        <Col>
-          <Text>They are attending ticket number: </Text>
-          <Text
-            style={{
-              fontSize: "30px",
-              color: "rgb(255, 0, 0, 0.85)",
-            }}
-          >
-            55
-          </Text>
-        </Col>
-      </Row>
+      {ticket && (
+        <Row>
+          <Col>
+            <Text>They are attending ticket number: </Text>
+            <Text
+              style={{
+                fontSize: "30px",
+                color: "rgb(255, 0, 0, 0.85)",
+              }}
+            >
+              {ticket?.number}
+            </Text>
+          </Col>
+        </Row>
+      )}
       <Row>
         <Col offset={18} span={6}>
           <Button
